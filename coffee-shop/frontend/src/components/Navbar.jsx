@@ -152,16 +152,14 @@ export default function Navbar() {
                 className="relative p-2 rounded-full text-brand-cream/80 hover:text-brand-gold bg-brand-deepBlack/80 hover:bg-brand-deepBlack border border-brand-warmSand/15 transition-all duration-300 focus:outline-none cursor-pointer group"
                 aria-label="View Saved Favourites"
               >
-                <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform" />
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
                 {wishlistCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: [1, 1.25, 1] }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-brand-gold text-brand-deepBlack text-[10px] font-black rounded-full flex items-center justify-center font-accent shadow-md shadow-brand-gold/30"
+                  <span
+                    key={wishlistCount}
+                    className="cart-badge-count"
                   >
                     {wishlistCount}
-                  </motion.span>
+                  </span>
                 )}
               </button>
 
@@ -171,16 +169,14 @@ export default function Navbar() {
                 className="relative p-2 rounded-full text-brand-cream/80 hover:text-brand-gold bg-brand-deepBlack/80 hover:bg-brand-deepBlack border border-brand-warmSand/15 transition-all duration-300 focus:outline-none cursor-pointer group"
                 aria-label="View Shopping Cart"
               >
-                <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:scale-110 transition-transform" />
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
                 {totalItems > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: [1, 1.25, 1] }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-brand-gold text-brand-deepBlack text-[10px] font-black rounded-full flex items-center justify-center font-accent shadow-md shadow-brand-gold/30"
+                  <span
+                    key={totalItems}
+                    className="cart-badge-count"
                   >
                     {totalItems}
-                  </motion.span>
+                  </span>
                 )}
               </button>
 

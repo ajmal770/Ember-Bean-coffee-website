@@ -3,7 +3,7 @@ const sessionSubmissions = [];
 
 export const handleContactSubmission = (req, res) => {
   try {
-    const { name, email, phone, subject, message } = req.body;
+    const { name, email, phone, subject, message } = req.body || {};
 
     // Validation checks
     const errors = {};

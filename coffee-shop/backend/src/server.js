@@ -9,15 +9,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// CORS Middleware - Allows requests from client apps (localhost, Vercel preview/production, custom domains)
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "http://localhost:3000",
-      "http://127.0.0.1:3000"
-    ],
+    origin: true,
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
@@ -36,30 +32,31 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
+// Health check endpoint (accessible via /api/health or /health)
+app.get(["/api/health", "/health"], (req, res) => {
   res.status(200).json({
     status: "ok",
     service: "Premium Coffee Shop & Restaurant API",
     version: "1.0.0",
-    uptime: Math.floor(process.processUptime ? process.processUptime() : process.uptime()),
+    uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString()
   });
 });
 
-// Mount Routes
-app.use("/api/menu", menuRoutes);
-app.use("/api/contact", contactRoutes);
+// Mount Routes (supports both /api/path and /path for flexible Vercel rewrite handling)
+app.use(["/api/menu", "/menu"], menuRoutes);
+app.use(["/api/contact", "/contact"], contactRoutes);
 
-// Root fallback
-app.get("/", (req, res) => {
+// Root info fallback (must come AFTER specific routes)
+app.get(["/", "/api", "/api/"], (req, res) => {
   res.status(200).json({
     message: "Welcome to Premium Coffee Shop & Restaurant API",
     endpoints: {
       health: "/api/health",
       menu: "/api/menu",
       menuByCategory: "/api/menu/:category",
-      contact: "POST /api/contact"
+      contact: "POST /api/contact",
+      contactSession: "GET /api/contact/session"
     }
   });
 });
@@ -75,20 +72,23 @@ app.use((req, res) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error("Unhandled Server Error:", err);
-  res.status(500).json({
+  const statusCode = err.status || err.statusCode || 500;
+  res.status(statusCode).json({
     success: false,
-    message: "Internal server error occurred",
+    message: err.message || "Internal server error occurred",
     error: process.env.NODE_ENV === "development" ? err.message : undefined
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`===============================================`);
-  console.log(`☕ Premium Coffee Shop API running on port ${PORT}`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`🩺 Health: http://localhost:${PORT}/api/health`);
-  console.log(`===============================================`);
-});
+// Only listen on port when running standalone locally; Vercel serverless handles exports directly
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`===============================================`);
+    console.log(`☕ Premium Coffee Shop API running on port ${PORT}`);
+    console.log(`📡 URL: http://localhost:${PORT}`);
+    console.log(`🩺 Health: http://localhost:${PORT}/api/health`);
+    console.log(`===============================================`);
+  });
+}
 
 export default app;
-

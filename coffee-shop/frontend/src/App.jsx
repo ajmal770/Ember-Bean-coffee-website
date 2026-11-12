@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { initSmoothScroll } from "./animations/gsapConfig";
@@ -14,21 +14,21 @@ import LoadingScreen from "./components/LoadingScreen";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import ConfirmationModal from "./components/ConfirmationModal";
 
-// Public Pages
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Menu from "./pages/Menu";
-import Contact from "./pages/Contact";
+// Public Pages — lazy loaded for code-splitting
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Menu = lazy(() => import("./pages/Menu"));
+const Contact = lazy(() => import("./pages/Contact"));
 
-// Auth Pages
-import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import ResetPassword from "./pages/auth/ResetPassword";
+// Auth Pages — lazy loaded
+const Register = lazy(() => import("./pages/auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 
-// Role-Protected Dashboards
-import Profile from "./pages/customer/Profile";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
+// Role-Protected Dashboards — lazy loaded
+const Profile = lazy(() => import("./pages/customer/Profile"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
 
 function GlobalToasts() {
   const { toastMessage: cartToast } = useCart();
@@ -91,87 +91,93 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full"
-      >
-        <Routes location={location} key={location.pathname}>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/contact" element={<Contact />} />
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <span className="w-6 h-6 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full"
+        >
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/contact" element={<Contact />} />
 
-          {/* Authentication Routes - Login page removed; redirects to Home */}
-          <Route path="/login" element={<Navigate to="/" replace />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+            {/* Authentication Routes - Login page removed; redirects to Home */}
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Customer Profile & Sub-Routes */}
-          <Route
-            path="/profile"
-            element={
-              <RoleProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "SUPER_ADMIN"]}>
-                <Profile />
-              </RoleProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile/:tab"
-            element={
-              <RoleProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "SUPER_ADMIN"]}>
-                <Profile />
-              </RoleProtectedRoute>
-            }
-          />
+            {/* Customer Profile & Sub-Routes */}
+            <Route
+              path="/profile"
+              element={
+                <RoleProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "SUPER_ADMIN"]}>
+                  <Profile />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/:tab"
+              element={
+                <RoleProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "SUPER_ADMIN"]}>
+                  <Profile />
+                </RoleProtectedRoute>
+              }
+            />
 
-          {/* Admin Operations & Sub-Routes */}
-          <Route
-            path="/admin"
-            element={
-              <RoleProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
-                <AdminDashboard />
-              </RoleProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/:tab"
-            element={
-              <RoleProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
-                <AdminDashboard />
-              </RoleProtectedRoute>
-            }
-          />
+            {/* Admin Operations & Sub-Routes */}
+            <Route
+              path="/admin"
+              element={
+                <RoleProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
+                  <AdminDashboard />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/:tab"
+              element={
+                <RoleProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
+                  <AdminDashboard />
+                </RoleProtectedRoute>
+              }
+            />
 
-          {/* Super Admin Executive Console & Sub-Routes */}
-          <Route
-            path="/superadmin"
-            element={
-              <RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
-                <SuperAdminDashboard />
-              </RoleProtectedRoute>
-            }
-          />
-          <Route
-            path="/superadmin/:tab"
-            element={
-              <RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
-                <SuperAdminDashboard />
-              </RoleProtectedRoute>
-            }
-          />
+            {/* Super Admin Executive Console & Sub-Routes */}
+            <Route
+              path="/superadmin"
+              element={
+                <RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
+                  <SuperAdminDashboard />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/superadmin/:tab"
+              element={
+                <RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
+                  <SuperAdminDashboard />
+                </RoleProtectedRoute>
+              }
+            />
 
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </motion.div>
+      </AnimatePresence>
+    </Suspense>
   );
 }
 

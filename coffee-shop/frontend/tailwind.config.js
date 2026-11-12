@@ -25,6 +25,9 @@ export default {
           muted: "#9E978E",            // Soft muted text
         }
       },
+      spacing: {
+        4.5: '1.125rem',               // 18px
+      },
       fontFamily: {
         heading: ["'Playfair Display'", "serif"],
         body: ["'Inter'", "sans-serif"],
