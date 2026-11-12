@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Official Brand Color Palette */
+  --color-vantablack: #050505;       /* #050505 · Luxury backgrounds */
+  --color-deep-black: #171717;       /* #171717 · Main sections and navbar */
+  --color-sand-beige: #D8C3A5;       /* #D8C3A5 · Secondary backgrounds */
+  --color-warm-sand: #E8D8C3;        /* #E8D8C3 · Cards and highlights */
+  --color-cream-white: #F7F3EC;      /* #F7F3EC · Headings and text */
+  --color-golden-yellow: #E9B949;    /* #E9B949 · Buttons and accents */
+  --color-white: #FFFFFF;
+  --color-muted-text: #9E978E;
+}
+
+body {
+  background-color: #050505;
+  color: #F7F3EC;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Completely Hide Scrollbar Across All Browsers & Platforms while keeping smooth scrolling */
+html,
+body,
+#root,
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+
+/* Editorial Typography utilities */
+.font-editorial {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-sans-clean {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-cta {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Image zoom effect class */
+.hover-zoom-img {
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .hover-zoom-img {
+  transform: scale(1.08);
+}
